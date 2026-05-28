@@ -1,6 +1,6 @@
 import { mapKeywordsToStocks, StockMapping } from "./stockMap";
 
-export type TrendSource = "reddit" | "tiktok" | "twitter" | "news" | "polymarket";
+export type TrendSource = "reddit" | "tiktok" | "twitter" | "news" | "polymarket" | "sec" | "congress" | "whale";
 
 export interface RawSignal {
   id: string;
@@ -33,8 +33,8 @@ export interface Trend {
   isNew?: boolean;
 }
 
-const BULLISH_WORDS = ["surge", "launch", "growth", "record", "beat", "new", "bullish", "buy", "moon", "🚀", "gain", "rise", "up", "profit", "revenue", "deal", "partner", "approve", "patent", "ai", "invest"];
-const BEARISH_WORDS = ["crash", "fall", "drop", "sell", "short", "bear", "loss", "fail", "ban", "lawsuit", "layoff", "cut", "miss", "decline", "recall", "fraud", "debt", "tariff", "sanction"];
+const BULLISH_WORDS = ["surge", "launch", "growth", "record", "beat", "new", "bullish", "buy", "moon", "🚀", "gain", "rise", "up", "profit", "revenue", "deal", "partner", "approve", "patent", "ai", "invest", "insider buy", "bought", "purchase", "accumulate", "dovish", "rate cut", "upgrade", "outperform", "breakout", "acquisition", "buyback", "dividend"];
+const BEARISH_WORDS = ["crash", "fall", "drop", "sell", "short", "bear", "loss", "fail", "ban", "lawsuit", "layoff", "cut", "miss", "decline", "recall", "fraud", "debt", "tariff", "sanction", "insider sell", "sold", "disposition", "hawkish", "rate hike", "downgrade", "underperform", "breakdown"];
 
 function extractKeywords(text: string): string[] {
   const lower = text.toLowerCase();
@@ -46,6 +46,13 @@ function extractKeywords(text: string): string[] {
     "bitcoin", "crypto", "ethereum", "fintech",
     "amazon", "walmart", "target", "costco", "nike", "coffee", "fast food", "food delivery",
     "space", "drone", "defense", "travel", "airline", "airbnb", "gaming", "disney",
+    "insider buy", "insider sell", "form 4", "sec filing", "ceo", "cfo", "director",
+    "13f", "institutional", "hedge fund", "berkshire", "renaissance", "bridgewater",
+    "whale", "large transaction", "whale transfer",
+    "congress", "senator", "representative", "politician", "pelosi", "tuberville",
+    "fed", "federal reserve", "dovish", "hawkish", "rate cut", "rate hike", "fomc",
+    "interest rate", "inflation", "treasury", "bond",
+    "ipo", "earnings", "revenue", "merger", "acquisition", "buyback", "dividend",
   ];
   return KEYWORD_POOL.filter(kw => lower.includes(kw));
 }
@@ -81,6 +88,9 @@ function sourceLabel(s: TrendSource, subreddit?: string): string {
   if (s === "tiktok") return "TikTok";
   if (s === "twitter") return "X (Twitter)";
   if (s === "polymarket") return "Polymarket";
+  if (s === "sec") return "SEC EDGAR";
+  if (s === "congress") return "Congress Trades";
+  if (s === "whale") return "Whale Alert";
   return "News";
 }
 

@@ -95,6 +95,42 @@ export const KEYWORD_STOCK_MAP: Record<string, StockMapping[]> = {
   "roblox": [{ ticker: "RBLX", company: "Roblox", sector: "Technology", exchange: "NYSE" }],
   "esports": [{ ticker: "SKLZ", company: "Skillz", sector: "Technology", exchange: "NYSE" }],
   "disney": [{ ticker: "DIS", company: "Disney", sector: "Communication", exchange: "NYSE" }],
+
+  // Insider Trading & SEC
+  "insider buy": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "insider sell": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "form 4": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "sec filing": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "13f": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "berkshire": [{ ticker: "BRK.B", company: "Berkshire Hathaway", sector: "Finance", exchange: "NYSE" }],
+  "renaissance": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "bridgewater": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+
+  // Congress
+  "congress": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "pelosi": [{ ticker: "NVDA", company: "NVIDIA", sector: "Technology", exchange: "NASDAQ" }, { ticker: "AAPL", company: "Apple", sector: "Technology", exchange: "NASDAQ" }],
+  "tuberville": [{ ticker: "TSLA", company: "Tesla", sector: "Consumer Cyclical", exchange: "NASDAQ" }],
+
+  // Federal Reserve
+  "fed": [{ ticker: "TLT", company: "20+ Year Treasury ETF", sector: "Finance", exchange: "NASDAQ" }, { ticker: "JPM", company: "JPMorgan", sector: "Finance", exchange: "NYSE" }],
+  "federal reserve": [{ ticker: "TLT", company: "20+ Year Treasury ETF", sector: "Finance", exchange: "NASDAQ" }, { ticker: "GS", company: "Goldman Sachs", sector: "Finance", exchange: "NYSE" }],
+  "dovish": [{ ticker: "TLT", company: "20+ Year Treasury ETF", sector: "Finance", exchange: "NASDAQ" }, { ticker: "QQQ", company: "Nasdaq-100 ETF", sector: "Technology", exchange: "NASDAQ" }],
+  "hawkish": [{ ticker: "TLT", company: "20+ Year Treasury ETF", sector: "Finance", exchange: "NASDAQ" }],
+  "rate cut": [{ ticker: "TLT", company: "20+ Year Treasury ETF", sector: "Finance", exchange: "NASDAQ" }, { ticker: "QQQ", company: "Nasdaq-100 ETF", sector: "Technology", exchange: "NASDAQ" }],
+  "rate hike": [{ ticker: "TLT", company: "20+ Year Treasury ETF", sector: "Finance", exchange: "NASDAQ" }],
+  "fomc": [{ ticker: "TLT", company: "20+ Year Treasury ETF", sector: "Finance", exchange: "NASDAQ" }, { ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+
+  // Whale / Blockchain
+  "whale": [{ ticker: "COIN", company: "Coinbase", sector: "Finance", exchange: "NASDAQ" }, { ticker: "MSTR", company: "MicroStrategy", sector: "Technology", exchange: "NASDAQ" }],
+  "whale transfer": [{ ticker: "COIN", company: "Coinbase", sector: "Finance", exchange: "NASDAQ" }],
+
+  // Corporate Events
+  "ipo": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "earnings": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "merger": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "acquisition": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "buyback": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
+  "dividend": [{ ticker: "SPY", company: "S&P 500 ETF", sector: "Finance", exchange: "NYSE" }],
 };
 
 export const SECTOR_COLORS: Record<string, string> = {
