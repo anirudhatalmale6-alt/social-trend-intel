@@ -3,7 +3,7 @@ import { RawSignal } from "@/lib/trendEngine";
 import { MOCK_TIKTOK_SIGNALS, MOCK_TWITTER_SIGNALS } from "@/lib/mockData";
 import { processSignals } from "@/lib/trendEngine";
 
-const BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const BASE = process.env.INTERNAL_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 async function fetchFeed(path: string): Promise<RawSignal[]> {
   try {
