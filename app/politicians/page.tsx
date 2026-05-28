@@ -25,7 +25,7 @@ export default function PoliticiansPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/trend-intel/api/politicians");
+        const res = await fetch("/api/politicians");
         const data = await res.json();
         setTrades(data.trades ?? []);
         setSource(data.source ?? "");

@@ -1,80 +1,68 @@
 import { NextResponse } from "next/server";
 import { RawSignal } from "@/lib/trendEngine";
 
-const EDGAR_FULL_TEXT_URL =
-  "https://efts.sec.gov/LATEST/search-index?q=%22Form+4%22&dateRange=custom&startdt=STARTDT&enddt=ENDDT&forms=4";
-
-const EDGAR_RSS_URL =
+const EDGAR_RSS =
   "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=4&dateb=&owner=include&count=40&search_text=&start=0&output=atom";
 
-interface EdgarFiling {
-  title: string;
-  link: string;
-  updated: string;
-  summary: string;
+export async function GET() {
+  try {
+    const signals = await fetchEdgarForm4();
+    return NextResponse.json({ signals, count: signals.length });
+  } catch {
+    return NextResponse.json({ signals: [], count: 0, error: "SEC fetch failed" });
+  }
 }
 
-async function fetchEdgarFilings(): Promise<RawSignal[]> {
+async function fetchEdgarForm4(): Promise<RawSignal[]> {
   const signals: RawSignal[] = [];
 
   try {
-    const res = await fetch(EDGAR_RSS_URL, {
+    const res = await fetch(EDGAR_RSS, {
       headers: {
-        "User-Agent": "TrendArb/1.0 (research tool, contact@trendintel.app)",
-        Accept: "application/atom+xml, application/xml, text/xml, text/html",
+        "User-Agent": "TrendArb research@trendintel.app",
+        Accept: "application/atom+xml, text/xml, text/html",
       },
       next: { revalidate: 600 },
     });
 
     if (!res.ok) return signals;
-
     const text = await res.text();
 
-    const entryRegex =
-      /<entry>([\s\S]*?)<\/entry>/g;
-    const titleRegex = /<title[^>]*>([\s\S]*?)<\/title>/;
-    const linkRegex = /<link[^>]*href="([^"]+)"/;
-    const updatedRegex = /<updated>([\s\S]*?)<\/updated>/;
-    const summaryRegex = /<summary[^>]*>([\s\S]*?)<\/summary>/;
+    const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+    const tagVal = (entry: string, tag: string) => {
+      const m = entry.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`));
+      return m ? m[1].replace(/<[^>]+>/g, "").trim() : "";
+    };
+    const tagAttr = (entry: string, tag: string, attr: string) => {
+      const m = entry.match(new RegExp(`<${tag}[^>]*${attr}="([^"]+)"`));
+      return m ? m[1] : "";
+    };
 
     let match;
     while ((match = entryRegex.exec(text)) !== null) {
       const entry = match[1];
 
-      const titleMatch = titleRegex.exec(entry);
-      const linkMatch = linkRegex.exec(entry);
-      const updatedMatch = updatedRegex.exec(entry);
-      const summaryMatch = summaryRegex.exec(entry);
+      const rawTitle = tagVal(entry, "title");
+      const link = tagAttr(entry, "link", "href");
+      const updated = tagVal(entry, "updated");
+      const summary = tagVal(entry, "summary").slice(0, 400);
 
-      if (!titleMatch) continue;
+      if (!rawTitle.startsWith("4")) continue;
 
-      const title = titleMatch[1].replace(/<[^>]+>/g, "").trim();
-      const link = linkMatch?.[1] || "";
-      const updated = updatedMatch?.[1]?.trim() || "";
-      const summary = (summaryMatch?.[1] || "")
-        .replace(/<[^>]+>/g, "")
-        .trim()
-        .slice(0, 300);
-
-      if (!title.includes("4") && !title.toLowerCase().includes("insider")) continue;
-
-      const insiderName = extractInsiderName(title);
-      const companyName = extractCompanyName(title, summary);
-      const tradeType = detectTradeType(summary);
-
-      const enrichedTitle = insiderName && companyName
-        ? `SEC Form 4: ${insiderName} ${tradeType} shares of ${companyName}`
-        : title;
+      const parsed = parseForm4Title(rawTitle);
+      const title = parsed.isIssuer
+        ? `SEC Insider Filing: ${parsed.name} — Form 4 filed`
+        : `SEC Insider Trade: ${parsed.name} filed Form 4 for ${parsed.related || "company"}`;
 
       const timestamp = updated ? new Date(updated).getTime() : Date.now();
 
       signals.push({
-        id: `sec-${link.replace(/[^a-zA-Z0-9]/g, "-").slice(-50)}`,
-        title: enrichedTitle.slice(0, 120),
-        body: `${tradeType === "bought" ? "Insider buy" : tradeType === "sold" ? "Insider sell" : "SEC filing"} — ${summary}`.slice(0, 300),
+        id: `sec-${(link || rawTitle).replace(/[^a-zA-Z0-9]/g, "-").slice(-50)}`,
+        title: title.slice(0, 120),
+        body: `Insider buy/sell detected via SEC Form 4. ${parsed.name} ${parsed.isIssuer ? "(issuer)" : "(reporting person)"}. Filed: ${updated?.split("T")[0] || "today"}. ${summary.slice(0, 150)}`,
         source: "sec",
         url: link.startsWith("http") ? link : `https://www.sec.gov${link}`,
-        score: tradeType === "bought" ? 80 : tradeType === "sold" ? 60 : 40,
+        score: 70,
         comments: 0,
         timestamp: isNaN(timestamp) ? Date.now() : timestamp,
       });
@@ -86,31 +74,19 @@ async function fetchEdgarFilings(): Promise<RawSignal[]> {
   return signals;
 }
 
-function extractInsiderName(title: string): string {
-  const match = title.match(/^([\w\s,.']+?)\s*[-–—]\s/);
-  return match?.[1]?.trim().slice(0, 40) || "";
-}
+function parseForm4Title(title: string): {
+  name: string;
+  cik: string;
+  isIssuer: boolean;
+  related?: string;
+} {
+  const nameMatch = title.match(/^4\s*-\s*(.+?)\s*\(/);
+  const cikMatch = title.match(/\((\d+)\)/);
+  const isIssuer = title.includes("(Issuer)");
+  const isReporting = title.includes("(Reporting)");
 
-function extractCompanyName(title: string, summary: string): string {
-  const combined = `${title} ${summary}`;
-  const match = combined.match(
-    /(?:issuer|company|reporting)\s*(?:name)?\s*[:\-]?\s*([A-Z][\w\s&.,]+?)(?:\s*\(|\s*-|\s*$)/i
-  );
-  return match?.[1]?.trim().slice(0, 50) || "";
-}
+  const name = nameMatch?.[1]?.trim() || title.replace(/^4\s*-\s*/, "").trim();
+  const cik = cikMatch?.[1] || "";
 
-function detectTradeType(text: string): string {
-  const lower = text.toLowerCase();
-  if (lower.includes("purchase") || lower.includes("acquisition") || lower.includes("buy")) return "bought";
-  if (lower.includes("sale") || lower.includes("disposition") || lower.includes("sell")) return "sold";
-  return "filed Form 4 for";
-}
-
-export async function GET() {
-  try {
-    const signals = await fetchEdgarFilings();
-    return NextResponse.json({ signals, count: signals.length });
-  } catch {
-    return NextResponse.json({ signals: [], count: 0, error: "SEC fetch failed" });
-  }
+  return { name, cik, isIssuer, related: isReporting ? "" : undefined };
 }

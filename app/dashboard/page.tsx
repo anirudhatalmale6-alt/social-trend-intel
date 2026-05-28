@@ -18,7 +18,7 @@ export default function DashboardPage() {
     if (!silent) setLoading(true);
     else setRefreshing(true);
     try {
-      const res = await fetch("/trend-intel/api/trends", { cache: "no-store" });
+      const res = await fetch("/api/trends", { cache: "no-store" });
       const data = await res.json();
       setTrends(data.trends ?? []);
       setMeta(data.meta ?? null);

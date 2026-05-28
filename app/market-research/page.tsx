@@ -13,7 +13,7 @@ export default function MarketResearchDashboard() {
   // Load trends from the existing API
   useEffect(() => {
     const fetchTrends = async () => {
-      const res = await fetch("/trend-intel/api/trends");
+      const res = await fetch("/api/trends");
       const data = await res.json();
       setTrends(data.trends ?? []);
     };

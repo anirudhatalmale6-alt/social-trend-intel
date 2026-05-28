@@ -15,7 +15,7 @@ const PolymarketList: React.FC = () => {
 
   const fetchMarkets = useCallback(async () => {
     try {
-      const response = await fetch('/trend-intel/api/polymarket');
+      const response = await fetch('/api/polymarket');
       if (!response.ok) {
         throw new Error(`Network response was not ok (${response.status})`);
       }

@@ -33,7 +33,7 @@ export default function CopyTradingDashboard() {
 
   useEffect(() => {
     const fetchTrends = async () => {
-      const res = await fetch("/trend-intel/api/trends");
+      const res = await fetch("/api/trends");
       const data = await res.json();
       setTrends(data.trends ?? []);
     };
