@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Arbitrage Trading Simulator</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <!-- HEADER / REAL-TIME STATS -->
+  <header>
+    <div class="header-container">
+      <div class="logo-section">
+        <h1>Social Arb Trading</h1>
+      </div>
+      <div class="stats-section">
+        <div class="stat-box" id="stat-round">
+          <div class="stat-label">Scenario</div>
+          <div class="stat-value font-mono" id="current-scenario-name">Round 1</div>
+        </div>
+        <div class="stat-box" id="stat-cash">
+          <div class="stat-label">Liquid Cash</div>
+          <div class="stat-value font-mono" id="cash-display">$20,000</div>
+        </div>
+        <div class="stat-box" id="stat-value">
+          <div class="stat-label">Position Value</div>
+          <div class="stat-value font-mono" id="positions-val-display">$0</div>
+        </div>
+        <div class="stat-box" id="stat-net-worth">
+          <div class="stat-label">Net Worth</div>
+          <div class="stat-value font-mono" id="net-worth-display">$20,000</div>
+        </div>
+        <div class="stat-box" id="stat-profit">
+          <div class="stat-label">Net Return</div>
+          <div class="stat-value font-mono" id="profit-display">$0 (0%)</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN DASHBOARD -->
+  <main>
+    <!-- LEFT PANEL: INTEL HUB -->
+    <section class="dashboard-card" id="intel-card">
+      <h2 class="card-title">
+        <span>📂 Intel Feeds</span>
+        <span class="font-mono" id="ticker-badge" style="color: var(--color-primary);">NWL</span>
+      </h2>
+
+      <!-- Intel Navigation Tabs -->
+      <div class="tabs-container">
+        <button class="tab-btn active" data-tab="social">💬 Social Comments</button>
+        <button class="tab-btn" data-tab="trends">📈 Google Trends</button>
+        <button class="tab-btn" data-tab="checks">🔍 Channel Check</button>
+        <button class="tab-btn" data-tab="news">📰 Wall Street News</button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="tab-content active" id="social-tab">
+        <!-- Injected via app.js -->
+      </div>
+
+      <div class="tab-content" id="trends-tab">
+        <div class="trends-container">
+          <div class="trend-stats">
+            <div class="trend-val-box">
+              <div class="stat-label">Relative Search Index</div>
+              <div class="trend-val-num font-mono" id="trend-num-display">0</div>
+            </div>
+            <div class="trend-val-box">
+              <div class="stat-label">Information Phase</div>
+              <div class="trend-val-num font-mono" id="trend-phase-display" style="font-size: 16px; margin-top: 8px; color: var(--color-primary);">Asymmetry</div>
+            </div>
+          </div>
+          <!-- Trends SVG Line Chart -->
+          <div style="position: relative; height: 320px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-card); border-radius: var(--radius-md); padding: 10px;">
+            <svg id="trends-chart" width="100%" height="100%" style="overflow: visible;"></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="checks-tab">
+        <div class="check-action-card">
+          <h3 style="margin-bottom: 8px; font-size: 16px;" id="check-name-display">Channel Check</h3>
+          <p class="check-desc" id="check-desc-display">Investigate the physical supply channel to look for anomalies.</p>
+          <button class="btn-primary-glow" id="run-check-btn">Perform Check (Costs $50)</button>
+        </div>
+        <div class="check-result-box" id="check-result-display">
+          Perform a physical channel check or call an analyst to uncover underground information.
+        </div>
+      </div>
+
+      <div class="tab-content" id="news-tab">
+        <!-- Injected via app.js -->
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: TRADING DESK -->
+    <section class="dashboard-card" id="trade-card">
+      <h2 class="card-title">
+        <span>🏦 Trading Desk</span>
+        <span class="font-mono" id="asset-price-badge">$15.00</span>
+      </h2>
+
+      <!-- Stock Price Chart -->
+      <div class="chart-container">
+        <svg id="stock-chart" width="100%" height="100%" style="overflow: visible;"></svg>
+      </div>
+
+      <!-- Transaction Console -->
+      <div class="trade-console">
+        <!-- Buy / Sell Toggle -->
+        <div class="console-row">
+          <div class="console-group">
+            <span class="console-label">Action</span>
+            <div class="button-toggle-group">
+              <button class="toggle-btn active buy" id="action-buy-btn">Buy / Long</button>
+              <button class="toggle-btn sell" id="action-sell-btn">Short / Put</button>
+            </div>
+          </div>
+          <div class="console-group">
+            <span class="console-label">Instrument</span>
+            <select class="select-input" id="instrument-select">
+              <option value="stock">Equity (Stock shares)</option>
+              <option value="option">Leveraged Option Contract</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Option Leverage Selector -->
+        <div class="console-group" id="leverage-group" style="display: none;">
+          <span class="console-label">Option Leverage Multiplier <span class="tooltip-trigger" title="Higher leverage yields higher returns but scales risk and incurs time decay (Theta)">[?]</span></span>
+          <div class="leverage-selector">
+            <button class="leverage-btn" data-lev="5">5x</button>
+            <button class="leverage-btn active" data-lev="10">10x</button>
+            <button class="leverage-btn" data-lev="25">25x</button>
+          </div>
+          <div style="font-size: 11px; color: var(--color-warning); margin-top: 4px;" id="theta-warning">
+            ⚠️ Options suffer daily time decay. Hold duration: short. Strike: ATM. Expiry: Day 0.
+          </div>
+        </div>
+
+        <!-- Position Sizing -->
+        <div class="console-group">
+          <div style="display: flex; justify-content: space-between;">
+            <span class="console-label">Trade Size</span>
+            <span class="console-label font-mono" id="size-amount-display" style="color: var(--color-primary);">$10,000 (50%)</span>
+          </div>
+          <input type="range" class="slider-input" id="size-slider" min="5" max="100" step="5" value="50">
+          <div class="slider-values">
+            <span>5%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span>75%</span>
+            <span>100%</span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button class="action-btn" id="execute-trade-btn">Execute Trade Order</button>
+      </div>
+    </section>
+
+    <!-- BOTTOM ROW: ACTIVE POSITIONS LOG -->
+    <section class="dashboard-card positions-card" id="positions-card">
+      <h2 class="card-title">💼 Active Positions</h2>
+      <div style="overflow-x: auto; width: 100%;">
+        <table class="positions-table">
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Type</th>
+              <th>Leverage</th>
+              <th>Strike</th>
+              <th>Entry Price</th>
+              <th>Current Price</th>
+              <th>Expiry</th>
+              <th>Value</th>
+              <th>PnL</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="positions-tbody">
+            <tr>
+              <td colspan="10" style="text-align: center; color: var(--color-text-muted); padding: 24px;">
+                No active positions. Execute a trade above to open a position.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- TIMELINE / ACTION BAR -->
+  <footer class="timeline-bar">
+    <div class="timeline-progress-container">
+      <div class="timeline-labels">
+        <span>Information Asymmetry (Off Radar)</span>
+        <span>Transition Phase</span>
+        <span>Information Parity (Wall Street)</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="timeline-progress-fill"></div>
+      </div>
+      <div class="timeline-labels" style="margin-top: 2px;">
+        <span class="font-mono" style="color: var(--color-primary); font-size: 14px;" id="current-day-label">Day -30</span>
+        <span class="font-mono" style="color: var(--color-warning);" id="days-remaining-label">30 days to Earnings</span>
+      </div>
+    </div>
+    <div class="control-buttons">
+      <button class="btn-secondary" id="step-day-btn">Step Day (+1d)</button>
+      <button class="btn-primary-glow" id="autoplay-btn">Autoplay (▶)</button>
+    </div>
+  </footer>
+
+  <!-- MODALS -->
+  <dialog id="start-dialog" closedby="any" aria-labelledby="start-title">
+    <div class="dialog-header">
+      <h2 id="start-title">The DIY Slime Craze</h2>
+      <div class="font-mono" style="color: var(--color-warning);" id="start-round-subtitle">Round 1 of 5</div>
+    </div>
+    <div class="dialog-body">
+      <p id="start-desc">Scenario description will load here.</p>
+      <p style="margin-top: 12px; font-size: 13px; color: var(--color-text-muted);">
+        💡 <strong>Your Goal:</strong> Use the <strong>Intel Feeds</strong> (Social comments, Google Trends volume, and local observations) to trade before the market finds out. Buy Call options or Stock when information is asymmetric, and close them as other investors catch up!
+      </p>
+    </div>
+    <div class="dialog-footer">
+      <button class="dialog-btn" id="start-game-btn">Begin Research</button>
+    </div>
+  </dialog>
+
+  <dialog id="earnings-dialog" closedby="any" aria-labelledby="earnings-title">
+    <div class="dialog-header">
+      <h2 id="earnings-title">Quarterly Earnings Call</h2>
+      <div class="font-mono" style="color: var(--color-primary);" id="earnings-ticker-subtitle">NWL Earnings Report</div>
+    </div>
+    <div class="dialog-body">
+      <div class="earnings-outcome-banner" id="earnings-outcome-banner">TRADE SUCCESSFUL</div>
+      <p id="earnings-details">Earnings call details here.</p>
+      <div class="earnings-grid">
+        <div class="earnings-stat"><span class="label">Starting Net Worth</span><span class="val" id="earn-start-nw">$20,000</span></div>
+        <div class="earnings-stat"><span class="label">Final Net Worth</span><span class="val" id="earn-final-nw">$24,500</span></div>
+        <div class="earnings-stat"><span class="label">Round Gain / Loss</span><span class="val" id="earn-gain-loss">+$4,500</span></div>
+        <div class="earnings-stat"><span class="label">Annualized Alpha</span><span class="val" style="color: var(--color-primary);" id="earn-alpha">+142%</span></div>
+      </div>
+    </div>
+    <div class="dialog-footer"><button class="dialog-btn" id="earnings-next-btn">Advance to Next Round</button></div>
+  </dialog>
+
+  <dialog id="gameover-dialog" closedby="any" aria-labelledby="gameover-title">
+    <div class="dialog-header">
+      <h2 id="gameover-title">Game Over</h2>
+      <div class="font-mono" id="gameover-subtitle" style="color: var(--color-danger);">Margin Call / Bankrupt</div>
+    </div>
+    <div class="dialog-body">
+      <p id="gameover-desc">Your portfolio was wiped out due to options leverage or incorrect trend timing.</p>
+      <div class="earnings-grid" style="grid-template-columns: 1fr;">
+        <div class="earnings-stat" style="text-align: center;"><span class="label">Peak Net Worth Achieved</span><span class="val" id="gameover-peak-nw" style="font-size: 24px;">$20,000</span></div>
+      </div>
+    </div>
+    <div class="dialog-footer"><button class="dialog-btn" id="restart-game-btn">Play Again</button></div>
+  </dialog>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="../scenarios.js"></script>
+  <script src="../app.js"></script>
+</body>
+</html>

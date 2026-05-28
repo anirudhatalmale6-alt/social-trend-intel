@@ -1,0 +1,344 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --bg-base:        #060a14;
+  --bg-surface:     #0c1220;
+  --bg-elevated:    #111827;
+  --bg-glass:       rgba(15, 22, 40, 0.7);
+  --bg-glass-hover: rgba(22, 32, 58, 0.85);
+
+  --accent-violet:  #7c6fff;
+  --accent-violet-glow: rgba(124, 111, 255, 0.25);
+  --accent-emerald: #00e5b3;
+  --accent-emerald-glow: rgba(0, 229, 179, 0.2);
+  --accent-amber:   #fbbf24;
+  --accent-rose:    #f43f5e;
+
+  --signal-high:    #00e676;
+  --signal-med:     #ffa726;
+  --signal-low:     #ef5350;
+
+  --bullish:        #00e676;
+  --bearish:        #f43f5e;
+  --neutral:        #78909c;
+
+  --text-primary:   #e8eaf6;
+  --text-secondary: #8892b0;
+  --text-muted:     #4a5568;
+  --text-accent:    #a0aeff;
+
+  --border:         rgba(124, 111, 255, 0.12);
+  --border-hover:   rgba(124, 111, 255, 0.35);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border);
+  --shadow-glow-violet: 0 0 40px var(--accent-violet-glow);
+  --shadow-glow-emerald: 0 0 30px var(--accent-emerald-glow);
+
+  --transition: 0.2s ease;
+  --transition-slow: 0.4s ease;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   BACKGROUND NOISE + ORBS
+   ============================================================ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(124, 111, 255, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(0, 229, 179, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(244, 63, 94, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; }
+h2 { font-size: clamp(1.75rem, 3vw, 2.75rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
+h3 { font-size: 1.25rem; font-weight: 600; }
+h4 { font-size: 1rem; font-weight: 600; }
+p  { color: var(--text-secondary); line-height: 1.7; }
+
+.mono { font-family: 'DM Mono', monospace; }
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-violet), var(--accent-emerald));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-warm {
+  background: linear-gradient(135deg, var(--accent-amber), var(--accent-rose));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================
+   GLASS CARD
+   ============================================================ */
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+.glass-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-card), var(--shadow-glow-violet);
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-violet), #5a52e0);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(124, 111, 255, 0.4);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(124, 111, 255, 0.55);
+  background: linear-gradient(135deg, #8b7fff, var(--accent-violet));
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-glass-hover);
+}
+.btn-emerald {
+  background: linear-gradient(135deg, var(--accent-emerald), #00b390);
+  color: #000;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(0, 229, 179, 0.3);
+}
+.btn-emerald:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 229, 179, 0.45);
+}
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.badge-violet { background: rgba(124, 111, 255, 0.15); color: var(--accent-violet); border: 1px solid rgba(124, 111, 255, 0.25); }
+.badge-emerald { background: rgba(0, 229, 179, 0.12); color: var(--accent-emerald); border: 1px solid rgba(0, 229, 179, 0.2); }
+.badge-amber  { background: rgba(251, 191, 36, 0.12); color: var(--accent-amber); border: 1px solid rgba(251, 191, 36, 0.2); }
+.badge-rose   { background: rgba(244, 63, 94, 0.12); color: var(--accent-rose); border: 1px solid rgba(244, 63, 94, 0.2); }
+.badge-reddit { background: rgba(255, 69, 0, 0.12); color: #ff6314; border: 1px solid rgba(255, 69, 0, 0.2); }
+.badge-tiktok { background: rgba(0, 242, 234, 0.1); color: #00f2ea; border: 1px solid rgba(0, 242, 234, 0.2); }
+.badge-twitter{ background: rgba(29, 161, 242, 0.12); color: #1da1f2; border: 1px solid rgba(29, 161, 242, 0.2); }
+.badge-news   { background: rgba(251, 191, 36, 0.1); color: var(--accent-amber); border: 1px solid rgba(251, 191, 36, 0.2); }
+
+/* ============================================================
+   SIGNAL BAR
+   ============================================================ */
+.signal-bar-wrap {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.signal-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.8s cubic-bezier(.22,1,.36,1);
+}
+.signal-high { background: linear-gradient(90deg, var(--signal-high), #00bcd4); }
+.signal-med  { background: linear-gradient(90deg, var(--signal-med), #ff8f00); }
+.signal-low  { background: linear-gradient(90deg, var(--signal-low), #b71c1c); }
+
+/* ============================================================
+   LIVE PULSE INDICATOR
+   ============================================================ */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--signal-high);
+  box-shadow: 0 0 8px var(--signal-high);
+  animation: pulse-live 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px var(--signal-high); }
+  50% { opacity: 0.5; transform: scale(0.7); box-shadow: 0 0 3px var(--signal-high); }
+}
+
+/* ============================================================
+   TICKER TAPE
+   ============================================================ */
+.ticker-tape {
+  overflow: hidden;
+  background: rgba(124, 111, 255, 0.06);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 0;
+}
+.ticker-inner {
+  display: flex;
+  gap: 4rem;
+  animation: ticker 40s linear infinite;
+  width: max-content;
+}
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 999px; }
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+.w-full { width: 100%; }
+.text-sm { font-size: 0.85rem; }
+.text-xs { font-size: 0.75rem; }
+.text-muted { color: var(--text-muted); }
+.text-secondary { color: var(--text-secondary); }
+.font-mono { font-family: 'DM Mono', monospace; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+.animate-fadeInUp { animation: fadeInUp 0.6s ease both; }
+.animate-fadeIn   { animation: fadeIn 0.4s ease both; }
+
+/* ============================================================
+   LOADING SKELETON
+   ============================================================ */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-elevated) 25%, rgba(255,255,255,0.04) 50%, var(--bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* Polymarket list */
+.polymarket-container {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  margin-top: 2rem;
+}
+.polymarket-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  transition: var(--transition);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+.polymarket-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-card), var(--shadow-glow-violet);
+  transform: translateY(-2px);
+}
+.polymarket-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.polymarket-price {
+  font-size: 0.9rem;
+  color: var(--accent-emerald);
+}
