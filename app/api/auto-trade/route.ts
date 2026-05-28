@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { processSignals, RawSignal } from "@/lib/trendEngine";
 import { evaluateSignals, executeActions, TradeConfig } from "@/lib/autoTrader";
 import { isConfigured } from "@/lib/alpaca";
+import { sendTradeAlert, sendScanSummary, isAlertConfigured } from "@/lib/whatsappAlert";
 
 const BASE = process.env.INTERNAL_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
 
@@ -75,12 +76,39 @@ export async function GET(req: NextRequest) {
     };
 
     const actions = await evaluateSignals(trends, config);
+    const aboveThreshold = trends.filter((t) => t.signalScore >= threshold).length;
+
+    const sendAlerts = req.nextUrl.searchParams.get("alert") === "true";
+    let alertsSent = 0;
+
+    if (sendAlerts && isAlertConfigured() && actions.length > 0) {
+      for (const action of actions) {
+        const sent = await sendTradeAlert({
+          ticker: action.symbol,
+          sentiment: action.sentiment as "bullish" | "bearish",
+          signalScore: action.signalScore,
+          bullishCount: parseInt(action.reason.match(/(\d+) bullish/)?.[1] || "0"),
+          bearishCount: parseInt(action.reason.match(/(\d+) bearish/)?.[1] || "0"),
+          proposedTrade: action.type === "option" ? "OPTIONS" : "STOCK",
+          optionSymbol: action.optionSymbol,
+          strike: action.strike,
+          expiry: action.expiry,
+          qty: action.qty,
+        });
+        if (sent) alertsSent++;
+      }
+    }
+
+    if (sendAlerts && isAlertConfigured() && actions.length === 0) {
+      await sendScanSummary(rawSignals.length, aboveThreshold, 0, []);
+    }
 
     return NextResponse.json({
       mode: "dry-run",
       signalsProcessed: rawSignals.length,
-      trendsAboveThreshold: trends.filter((t) => t.signalScore >= threshold).length,
+      trendsAboveThreshold: aboveThreshold,
       proposedActions: actions,
+      alertsSent,
       config: { threshold, tickers },
     });
   } catch (e) {
