@@ -3,12 +3,14 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
-// TODO: Replace the following config with your own Firebase project credentials
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  // optional: storageBucket, messagingSenderId, appId, measurementId
+  apiKey: "AIzaSyAHfdmPUfi5ioBXXRqWstPZvYOxp9nQODU",
+  authDomain: "trend-arb-108e2.firebaseapp.com",
+  projectId: "trend-arb-108e2",
+  storageBucket: "trend-arb-108e2.firebasestorage.app",
+  messagingSenderId: "550609632443",
+  appId: "1:550609632443:web:2fea7d1f3a1f264b07bd9e",
+  measurementId: "G-1DZ24ZGVG9",
 };
 
 export const firebaseApp = initializeApp(firebaseConfig);
