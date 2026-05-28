@@ -153,6 +153,93 @@ export async function getLatestBar(
   };
 }
 
+// ── Options ─────────────────────────────────────────────
+
+export interface OptionContract {
+  id: string;
+  symbol: string;
+  name: string;
+  status: string;
+  tradable: boolean;
+  type: "call" | "put";
+  strike_price: string;
+  expiration_date: string;
+  underlying_symbol: string;
+  underlying_asset_id: string;
+  open_interest: string;
+  close_price: string;
+}
+
+export async function getOptionsChain(params: {
+  underlying: string;
+  type?: "call" | "put";
+  expirationFrom?: string;
+  expirationTo?: string;
+  strikeFrom?: number;
+  strikeTo?: number;
+  limit?: number;
+}): Promise<OptionContract[]> {
+  const qs = new URLSearchParams();
+  qs.set("underlying_symbols", params.underlying);
+  qs.set("status", "active");
+  if (params.type) qs.set("type", params.type);
+  if (params.expirationFrom) qs.set("expiration_date_gte", params.expirationFrom);
+  if (params.expirationTo) qs.set("expiration_date_lte", params.expirationTo);
+  if (params.strikeFrom) qs.set("strike_price_gte", String(params.strikeFrom));
+  if (params.strikeTo) qs.set("strike_price_lte", String(params.strikeTo));
+  qs.set("limit", String(params.limit || 20));
+
+  const data = await alpacaFetch<{ option_contracts: OptionContract[] }>(
+    `/v2/options/contracts?${qs.toString()}`
+  );
+  return data.option_contracts || [];
+}
+
+export async function getOptionQuote(
+  symbol: string
+): Promise<{ ask: number; bid: number; last: number; volume: number; open_interest: number }> {
+  const res = await fetch(
+    `${ALPACA_DATA}/v1beta1/options/quotes/latest?symbols=${symbol}&feed=indicative`,
+    { headers: headers() }
+  );
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Option quote failed ${res.status}: ${body}`);
+  }
+  const data = await res.json();
+  const q = data.quotes?.[symbol] || {};
+  return {
+    ask: q.ap || 0,
+    bid: q.bp || 0,
+    last: q.ap ? (q.ap + q.bp) / 2 : 0,
+    volume: q.v || 0,
+    open_interest: q.oi || 0,
+  };
+}
+
+export async function placeOptionOrder(params: {
+  symbol: string;
+  qty: number;
+  side: "buy" | "sell";
+  type?: "market" | "limit";
+  time_in_force?: "day" | "gtc";
+  limit_price?: number;
+}): Promise<AlpacaOrder> {
+  const body: Record<string, unknown> = {
+    symbol: params.symbol,
+    qty: String(params.qty),
+    side: params.side,
+    type: params.type || "market",
+    time_in_force: params.time_in_force || "day",
+  };
+  if (params.limit_price) body.limit_price = String(params.limit_price);
+
+  return alpacaFetch<AlpacaOrder>("/v2/orders", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
 export function isConfigured(): boolean {
   return ALPACA_KEY.length > 0 && ALPACA_SECRET.length > 0;
 }
